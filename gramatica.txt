@@ -1,0 +1,190 @@
+
+terminal String id;
+terminal String digito;
+terminal String cadena;
+terminal BoleanVerdadero;
+terminal simAsignacion;
+terminal puntoYComa;
+terminal caracter;
+terminal BoleanFalso;
+terminal coma;
+terminal String prInicio, prFin;
+terminal primprimir, primprimirln;
+terminal String comentarioMulti, comenta;
+terminal String trest,tsum,tdiv,tmul,tpot,tmod, pare1, pare2, cor1, cor2;
+terminal prIngresar, prcomo, prnumero, prConValor, prCadena, prCaracter, prBoolean;
+terminal String tmayor, tmenor, tmayorigual, tmenorigual, tigual, tdiferente;
+terminal pror, prand, prnot;
+terminal prmientras, prhacer, prfinmientras;
+terminal prsi, prentonces, prfinsi, prdelocontrario, prosi;
+terminal prsegun, prinzq, prinder, prfinsegun;
+terminal prpara, prhasta, prfinpara, prcon, princremental;
+terminal prrepetir, prhastaque;
+terminal prretornar;
+terminal prmetodo, prfinmetodo;
+terminal prfuncion, prfinfuncion, prconparametros;
+terminal prejecutar;
+
+
+//definicion de no terminales
+non terminal INICIO, E, Imprimir, declaracion, I, ident, comentarios, operaciones, relacional, asignaciones, Clmientras, logico, If, OsiRep, clpara, rep, retur;
+non terminal metodo, function, tipodato, tipodedatogrup, ejecutar, multuple, multipleRep;
+precedence left tsum,trest;
+precedence left tmul, tdiv;
+precedence left tpot, tmod;
+precedence left tmayor, tmenor;
+precedence left tmayorigual, tmenorigual;
+precedence left tigual, tdiferente;
+//Gramaticas
+
+start with INICIO;
+
+INICIO::= prInicio:e E prFin;
+
+
+E::=  I E
+    | I
+; 
+
+I::= declaracion
+    | asignaciones
+    | If
+    | comentarios
+    | operaciones
+    | Clmientras
+    | clpara
+    | rep
+    | retur
+    | metodo
+    | function
+    | ejecutar
+    | multuple
+    | Imprimir
+    | error I 
+;
+tipodato::= prnumero
+            | prCadena
+            | prCaracter
+            | prBoolean
+;
+tipodedatogrup::= id prnumero
+                | id prCadena
+                | id prCaracter
+                | id prBoolean
+                | tipodedatogrup coma id prnumero
+                | tipodedatogrup coma id prCadena
+                | tipodedatogrup coma id prCaracter
+                | tipodedatogrup coma id prBoolean
+;
+
+declaracion::= prIngresar ident prcomo prnumero prConValor operaciones puntoYComa
+            | prIngresar ident prcomo prCadena prConValor cadena puntoYComa
+            | prIngresar ident prcomo prCaracter prConValor caracter puntoYComa
+            | prIngresar ident prcomo prBoolean prConValor BoleanVerdadero puntoYComa
+            | prIngresar ident prcomo prBoolean prConValor BoleanFalso puntoYComa
+            | prIngresar ident prcomo prBoolean prConValor relacional puntoYComa
+;
+ident::= ident coma id
+        | id
+;
+
+comentarios::= comenta
+            | comentarioMulti
+;
+asignaciones::= ident simAsignacion cadena puntoYComa
+            | ident simAsignacion operaciones puntoYComa
+            | ident simAsignacion relacional puntoYComa
+            | ident simAsignacion caracter puntoYComa
+            | ident simAsignacion BoleanVerdadero puntoYComa
+            | ident simAsignacion BoleanFalso puntoYComa
+;
+
+Imprimir::= primprimir id puntoYComa
+        | primprimirln id puntoYComa
+        | primprimir cadena puntoYComa
+        | primprimirln cadena puntoYComa
+        | primprimir pare1 id pare2 puntoYComa
+        | primprimirln pare1 id pare2 puntoYComa
+        | primprimir pare1 cadena pare2 puntoYComa 
+        | primprimirln pare1 cadena pare2 puntoYComa
+;
+
+
+operaciones::= operaciones trest operaciones
+            | operaciones tsum operaciones
+            | operaciones tdiv operaciones
+            | operaciones tmul operaciones
+            | operaciones tpot operaciones
+            | operaciones tmod operaciones
+            | pare1 operaciones pare2
+            | cor1 operaciones cor2 
+            | pare1 relacional pare2 
+            | digito
+            | id
+;
+
+relacional::= operaciones tmayor operaciones
+        | operaciones tmenor operaciones
+        | operaciones tmayorigual operaciones
+        | operaciones tmenorigual operaciones
+        | operaciones tigual operaciones
+        | operaciones tdiferente operaciones
+
+logico::=  prnot operaciones
+        | operaciones pror operaciones 
+        | operaciones prand operaciones 
+;
+
+Clmientras::= prmientras logico prhacer E prfinmientras
+        | prmientras logico prhacer prfinmientras
+;
+
+OsiRep::= prosi relacional prentonces E 
+        | OsiRep prosi relacional prentonces E
+;
+
+If::= prsi relacional  prentonces E:B prfinsi 
+    | prsi relacional prentonces E prdelocontrario E prfinsi
+    | prsi relacional prentonces E OsiRep prdelocontrario E prfinsi
+    | prsi id prentonces E prdelocontrario E prfinsi
+    | prsi id prentonces E OsiRep prdelocontrario E prfinsi
+;
+
+clpara::= prpara id simAsignacion operaciones prhasta operaciones prhacer E prfinpara
+        | prpara id simAsignacion operaciones prhasta operaciones prhacer prfinpara
+        | prpara id simAsignacion operaciones prhasta operaciones prcon princremental operaciones prhacer E prfinpara
+;
+
+multuple::= prsegun id prhacer multipleRep prdelocontrario prentonces E prfinsegun
+            | prsegun id prhacer multipleRep prfinsegun
+;
+
+multipleRep::= prinzq digito prinder prentonces E  
+            | multipleRep prinzq digito prinder prentonces E
+;
+rep::= prrepetir E prhastaque operaciones
+    | prrepetir E prhastaque logico
+    | prrepetir E prhastaque relacional
+    | prrepetir prhastaque operaciones
+    | prrepetir prhastaque logico
+    | prrepetir prhastaque relacional
+;
+
+retur::= prretornar operaciones puntoYComa
+        | prretornar relacional puntoYComa
+        | prretornar logico puntoYComa
+;
+
+metodo::= prmetodo id E prfinmetodo
+        | prmetodo id prconparametros pare1 tipodedatogrup pare2 E prfinmetodo
+;
+
+function::= prfuncion id tipodato E prfinfuncion
+        | prfuncion id tipodato prconparametros pare1 tipodedatogrup pare2 E prfinfuncion
+;
+
+ejecutar::= prejecutar id pare1 pare2 puntoYComa
+        | prejecutar id pare1 tipodedatogrup pare2 puntoYComa
+;
+
+

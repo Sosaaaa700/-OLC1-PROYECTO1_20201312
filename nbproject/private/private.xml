@@ -4,7 +4,10 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/C:/Users/Julio/OneDrive/Escritorio/JulioU/Quinto_Semestre/LAB_COMPI/Proyecto_1/src/InterfazGG/ventanaPrincipal.java</file>
+            <file>file:/C:/Users/Julio/OneDrive/Escritorio/JulioU/Quinto_Semestre/LAB_COMPI/Proyecto_1/src/analizadores/Analizador_sintactico.java</file>
+            <file>file:/C:/Users/Julio/OneDrive/Escritorio/JulioU/Quinto_Semestre/LAB_COMPI/Proyecto_1/src/analizadores/A_lexico.jflex</file>
             <file>file:/C:/Users/Julio/OneDrive/Escritorio/JulioU/Quinto_Semestre/LAB_COMPI/Proyecto_1/src/proyecto_1/Proyecto_1.java</file>
+            <file>file:/C:/Users/Julio/OneDrive/Escritorio/JulioU/Quinto_Semestre/LAB_COMPI/Proyecto_1/src/analizadores/A_sintactico.cup</file>
         </group>
     </open-files>
 </project-private>

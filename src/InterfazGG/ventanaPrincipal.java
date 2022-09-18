@@ -5,6 +5,21 @@
  */
 package InterfazGG;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.Reader;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import analizadores.Analizador_Lexico;
+import analizadores.Analizador_sintactico;
+import java.awt.Desktop;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author Julio
@@ -18,6 +33,8 @@ public class ventanaPrincipal extends javax.swing.JFrame {
         initComponents();
     }
     public static String entrada = "";
+    public static String pathName = "";
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -45,7 +62,6 @@ public class ventanaPrincipal extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("PROYECTO 202010312");
         setFont(new java.awt.Font("Dubai Light", 0, 12)); // NOI18N
-        setMaximumSize(new java.awt.Dimension(625, 437));
         setMinimumSize(new java.awt.Dimension(625, 437));
         setResizable(false);
 
@@ -90,6 +106,11 @@ public class ventanaPrincipal extends javax.swing.JFrame {
         reportCombo.setFont(new java.awt.Font("Dubai Light", 0, 12)); // NOI18N
         reportCombo.setForeground(new java.awt.Color(255, 255, 255));
         reportCombo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Report", "Flowchart", "Errors" }));
+        reportCombo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                reportComboActionPerformed(evt);
+            }
+        });
 
         viewCombo.setBackground(new java.awt.Color(11, 83, 69));
         viewCombo.setFont(new java.awt.Font("Dubai Light", 0, 12)); // NOI18N
@@ -126,6 +147,11 @@ public class ventanaPrincipal extends javax.swing.JFrame {
         runButton.setFont(new java.awt.Font("Dubai Light", 0, 12)); // NOI18N
         runButton.setForeground(new java.awt.Color(255, 255, 255));
         runButton.setText("Run");
+        runButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                runButtonActionPerformed(evt);
+            }
+        });
 
         golangButton.setBackground(new java.awt.Color(11, 83, 69));
         golangButton.setFont(new java.awt.Font("Dubai Light", 0, 12)); // NOI18N
@@ -230,7 +256,7 @@ public class ventanaPrincipal extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void viewComboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewComboActionPerformed
-        
+
     }//GEN-LAST:event_viewComboActionPerformed
 
     private void cleanButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cleanButtonActionPerformed
@@ -240,23 +266,128 @@ public class ventanaPrincipal extends javax.swing.JFrame {
     private void golangButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_golangButtonActionPerformed
         entrada = cuadroText.getText();
         System.out.println(entrada);
+        ventanaGoCode goCode = new ventanaGoCode();
+        goCode.setVisible(true);
     }//GEN-LAST:event_golangButtonActionPerformed
 
     private void pythonButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pythonButtonActionPerformed
-        
+        ventanaPythonCode pythonCode = new ventanaPythonCode();
+        pythonCode.setVisible(true);
+        try {
+            FileReader fr = new FileReader("SalidaTraducida.py");
+            String cadena = "";
+            int valor = fr.read();
+            while (valor != -1) {
+                cadena = cadena + (char) valor;
+                valor = fr.read();
+            }
+            pythonCode.ingresar(cadena);
+        } catch (Exception e) {
+            System.out.println("Error al leer el archivo pai");
+
+        }
     }//GEN-LAST:event_pythonButtonActionPerformed
 
     private void fileComboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileComboActionPerformed
-       if(fileCombo.getSelectedIndex()>-1){
-           if(fileCombo.getSelectedItem().equals("Open file")){
-               System.out.println("Open File");
-           }
-           if(fileCombo.getSelectedItem().equals("Save as...")){
-               System.out.println("Save as..");
-           }
-          // System.out.println("Entro");
-       }
+        if (fileCombo.getSelectedIndex() > -1) {
+            if (fileCombo.getSelectedItem().equals("Open file")) {
+                cuadroText.setText("");
+                JFileChooser fc = new JFileChooser();
+                FileNameExtensionFilter filtro = new FileNameExtensionFilter(".olc", "olc");
+                fc.setFileFilter(filtro);
+                int seleccion = fc.showOpenDialog(this);
+                if (seleccion == JFileChooser.APPROVE_OPTION) {
+                    File fichero = fc.getSelectedFile();
+                    pathName = fichero.getAbsolutePath();
+                    try ( FileReader fr = new FileReader(fichero)) {
+                        String cadena = "";
+                        int valor = fr.read();
+                        while (valor != -1) {
+                            cadena = cadena + (char) valor;
+                            valor = fr.read();
+                        }
+                        cuadroText.setText(cadena);
+                    } catch (Exception e) {
+                        System.out.println("Error");
+                    }
+                }
+                System.out.println("Open File");
+            }
+            if (fileCombo.getSelectedItem().equals("Save as...")) {
+                JFileChooser fc = new JFileChooser();
+                FileNameExtensionFilter filtro = new FileNameExtensionFilter(".olc", "olc");
+                fc.setFileFilter(filtro);
+                int seleccion = fc.showSaveDialog(this);
+                if (seleccion == JFileChooser.APPROVE_OPTION) {
+                    File fichero = fc.getSelectedFile();
+                    pathName = fichero.getAbsolutePath();
+                    try ( FileWriter fw = new FileWriter(fichero)) {
+                        fw.write(cuadroText.getText());
+                    } catch (Exception e) {
+                        System.out.println("Error");
+                    }
+                }
+                System.out.println("Save as..");
+            }
+            // System.out.println("Entro");
+        }
     }//GEN-LAST:event_fileComboActionPerformed
+
+    private void runButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runButtonActionPerformed
+        try {
+            Analizador_Lexico lexico = new Analizador_Lexico(
+                    new BufferedReader(new FileReader(pathName))
+            );
+            Analizador_sintactico sintactico = new Analizador_sintactico(lexico);
+            sintactico.parse();
+        } catch (Exception e) {
+        }
+    }//GEN-LAST:event_runButtonActionPerformed
+
+    private void reportComboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reportComboActionPerformed
+        if (reportCombo.getSelectedIndex() > -1) {
+            if (reportCombo.getSelectedItem().equals("Flowchart")) {
+                String file_input_path = "arbol.dot";
+                String do_path = "C:\\Program Files\\Graphviz\\bin\\dot.exe";
+
+                String file_get_path = "Arbol_Sintactico.jpg";
+                try {
+                    ProcessBuilder pBuilder;
+                    pBuilder = new ProcessBuilder(do_path, "-Tjpg", "-o", file_get_path, file_input_path);
+                    pBuilder.redirectErrorStream(true);
+                    pBuilder.start();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                try {
+                    Desktop.getDesktop().open(new File("Arbol_Sintactico.jpg"));
+                    System.out.println("Genero jpg");
+                } catch (IOException ex) {
+                    System.out.println("Error " + ex.getMessage());
+                }
+            }
+
+            if (reportCombo.getSelectedItem().equals("Errors")) {
+                try {
+                    String archivo = "ReporteLexico.html";
+                    File objetofile = new File(archivo);
+                    String archivoS = "ReporteSintactico.html";
+                    File objetofiles = new File(archivoS);
+                    if (objetofile.exists()) {
+                        Desktop.getDesktop().open(objetofile);
+                        
+                    }
+                    if (objetofiles.exists()) {
+                        Desktop.getDesktop().open(objetofiles);
+                    }
+
+                } catch (IOException ex) {
+
+                    System.out.println(ex);
+                }
+            }
+        }
+    }//GEN-LAST:event_reportComboActionPerformed
 
     /**
      * @param args the command line arguments
@@ -272,16 +403,24 @@ public class ventanaPrincipal extends javax.swing.JFrame {
                 if ("Nimbus".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
+
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(ventanaPrincipal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ventanaPrincipal.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(ventanaPrincipal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ventanaPrincipal.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(ventanaPrincipal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ventanaPrincipal.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(ventanaPrincipal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ventanaPrincipal.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
@@ -293,6 +432,9 @@ public class ventanaPrincipal extends javax.swing.JFrame {
         });
     }
 
+    public static void notificar_er(String cad) {
+        System.out.println(cad);
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cleanButton;
     private javax.swing.JTextArea cuadroText;

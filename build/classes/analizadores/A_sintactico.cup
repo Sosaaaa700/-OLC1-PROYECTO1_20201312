@@ -1,0 +1,566 @@
+package analizadores;
+import java_cup.runtime.Symbol;
+import InterfazGG.ventanaPrincipal;
+import java.util.ArrayList;
+import java.io.*;
+
+
+
+parser code
+{:
+    public static String errorR;
+    public static String errorNR;
+    public static String inicio;
+    public static String segundo="";
+    public static String segundos;
+    public static int contadorGroup = 0;
+    public static String varias = "";
+    public static int contadorim = 0;
+    public static int contadorimL = 0;
+    public static int contadorvar = 0;
+    public static int contadorCan = 0;
+    public static int contadorpar = 0;
+    public static int contadorder = 0;
+    public static int contadorDeclaraciones= 0;
+    public static int contadorAsig =0;
+    public static ArrayList<String> varsss = new ArrayList<String>();
+    public static ArrayList<String> operationA = new ArrayList<String>();
+    public void syntax_error(Symbol s){
+        System.out.println("Error R de sintaxis en: " + " Linea "+(s.right)+" columna "+(s.left) + " No se esperaba un " + s.value );
+        errorNR+="<tr><td>Recuperable</td><td>"+(s.right)+"</td><td>"+(s.left)+"</td><td>"+ s.value +"</td></tr>";
+        System.out.println(errorNR);
+        leerErrores();
+    }
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{
+       System.out.println("Error NR de sintaxis en: " + " Linea "+(s.right)+" columna "+(s.left) + " No se esperaba un " + s.value );
+       errorNR+="<tr><td>No recuperable</td><td>"+(s.right)+"</td><td>"+(s.left)+"</td><td>"+ s.value +"</td></tr>";
+       System.out.println(errorNR);
+       leerErrores();
+    }
+    public String codigoTraducido="";
+    
+    public void leerErrores(){
+        String inicio =" <!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><link rel=\"stylesheet\" href=\"main4.css\" type=\"text/css\" /<title>Reporte HTML</title></head><body><ul><li class=\"Titulo\">Julio Estuardo Solorzano Sosa</a></li><li class=\"subtitulo\">Proyecto 1 OLC1</li></ul><div>";
+        String segundos= "<table align=\"center\"><tr><td class=\"precio\"  colspan=\"4\">Errores Sintacticos</td></tr><tr><td>Tipo</td><td>Linea</td><td>Columna</td><td>No se esperaba</td></tr>";
+        String ends = "</table><table class=\"precio\" align=\"center\"></div></body></html>";
+        try{
+            PrintWriter writer = new PrintWriter("ReporteSintactico.html");
+            writer.println(inicio);
+            writer.println(segundos);
+            writer.println(errorR);
+            writer.println(errorNR);
+            writer.println(ends);
+            writer.println("");
+            writer.close();
+            }catch (Exception e) {
+                System.out.println("Error");
+            }
+    }
+    public void escribirPy(){
+        String fileName = "SalidaTraducida.py";
+        try{
+            PrintWriter writer = new PrintWriter(fileName);
+            writer.println("def main():");
+            writer.println(codigoTraducido);
+            writer.println("");
+            writer.println("");
+            writer.println("if _name_ == '_main_':");
+            writer.println("\tmain()");
+            writer.println("");
+            writer.close();
+        }catch (Exception e){
+            System.out.println("Error");
+          }
+    }
+    
+    public void graficar(){
+        String Dott = """
+                      digraph G {
+                        graph[nodesep="0.75"]label="Arbol Sintactico";
+                        node [shape=box];
+                        rankdir = "TB"
+                        g[label="Global" width=2];
+                        pri[label="prinicio"  width = 2];
+                        ins[label="Instrucciones" width = 2];
+                        prf[label="prfinal"  width = 2];
+                        in[label="Instruccion", width = 2];
+                        im[label="impresion", width = 2];
+                        de[label="declaracion",width =2];
+                        asg[label="asignacion", width=2];
+                        impLn0[label="imprimir_nl",width =2];
+                        impN0[label="imprimir",width =2];
+                        parIz0[label="Parentesis izq"];
+                        caden0[label="cadena", width =2];
+                        parDe0[label="Parentesis der"];
+                        varia0[label="variable", width =2];
+                        puncoma0[label="puntoycoma",width =2];
+                        ing0[label="prIngresar", width=2];
+                        idnt0[label="id", width=2];
+                        pcomo0[label="prcomo",width=2];
+                        prtp0[label="tipodedato",width=2];
+                        prconv0[label="prconvalor",width=2];
+                        exp0[label="expresion",width=2];
+                        pyc0[label="puntoycoma",width=2];
+                        ids0[label="id",width=2];
+                        simas0[label="simAsignacion",width=2];
+                        exps0[label="expresion",width=2];
+                        pycs0[label="puntoycoma",width=2];
+                        g -> ins;
+                        g -> prf;
+                        g -> pri;
+                        ins -> in;
+                        in -> im;
+                        in -> de;
+                        in -> asg;
+                        de -> ing0;
+                        de -> idnt0;
+                        de -> pcomo0;
+                        de -> prtp0;
+                        de -> prconv0;
+                        de -> exp0;
+                        de ->pyc0;
+                        im -> impLn0;
+                        im -> impN0;
+                        im -> varia0;
+                        im -> caden0;
+                        im -> puncoma0;
+                        im -> parIz0;
+                        im -> parDe0;
+                        asg -> ids0;
+                        asg -> simas0;
+                        asg -> exps0;
+                        asg -> pycs0;
+                      """;
+        String finalDot = "}";
+        try{
+            PrintWriter writer = new PrintWriter("arbol.dot");
+            writer.println(Dott);
+            writer.println(segundo);
+            writer.println(finalDot);
+            writer.close();
+            System.out.println("Finalizo");
+            }catch (Exception e) {
+                System.out.println("Error");
+            }
+    }
+    
+:}
+
+terminal String id;
+terminal String digito;
+terminal String cadena;
+terminal BoleanVerdadero;
+terminal simAsignacion;
+terminal puntoYComa;
+terminal caracter;
+terminal BoleanFalso;
+terminal coma;
+terminal String prInicio, prFin;
+terminal primprimir, primprimirln;
+terminal String comentarioMulti, comenta;
+terminal String trest,tsum,tdiv,tmul,tpot,tmod, pare1, pare2, cor1, cor2;
+terminal prIngresar, prcomo, prnumero, prConValor, prCadena, prCaracter, prBoolean;
+terminal String tmayor, tmenor, tmayorigual, tmenorigual, tigual, tdiferente;
+terminal pror, prand, prnot;
+terminal prmientras, prhacer, prfinmientras;
+terminal prsi, prentonces, prfinsi, prdelocontrario, prosi;
+terminal prsegun, prinzq, prinder, prfinsegun;
+terminal prpara, prhasta, prfinpara, prcon, princremental;
+terminal prrepetir, prhastaque;
+terminal prretornar;
+terminal prmetodo, prfinmetodo;
+terminal prfuncion, prfinfuncion, prconparametros;
+terminal prejecutar;
+
+
+//definicion de no terminales
+non terminal INICIO, E, Imprimir, declaracion, I, ident, comentarios, operaciones, relacional, asignaciones, Clmientras, logico, If, OsiRep, clpara, rep, retur;
+non terminal metodo, function, tipodato, tipodedatogrup, ejecutar, multuple, multipleRep;
+precedence left tsum,trest;
+precedence left tmul, tdiv;
+precedence left tpot, tmod;
+precedence left tmayor, tmenor;
+precedence left tmayorigual, tmenorigual;
+precedence left tigual, tdiferente;
+//Gramaticas
+
+start with INICIO;
+
+INICIO::= prInicio:e E prFin:a{: System.out.println(codigoTraducido);
+    segundo+= "pri1"+"[label=\""+e+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"pri"+ "->" +"pri1"+ "\n;";
+    segundo+= "prf1"+"[label=\""+a+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"prf"+ "->" +"prf1"+ "\n;";
+    graficar();
+    escribirPy();
+:}
+;
+
+
+E::=  I:a E:b {:RESULT = a; RESULT = b;:}  
+    | I:a {:RESULT = a;:}  
+; 
+
+I::= declaracion:decla {:RESULT = decla;:}
+    | asignaciones:asgn {:RESULT = asgn; :}
+    | If:iff {:RESULT = iff;:}
+    | comentarios:coments {:RESULT = coments; :}
+    | operaciones:ops {:RESULT = ops; :}
+    | Clmientras
+    | clpara
+    | rep
+    | retur
+    | metodo
+    | function
+    | ejecutar
+    | multuple
+    | Imprimir:impa {:RESULT = impa;:}
+    | error I 
+;
+tipodato::= prnumero
+            | prCadena
+            | prCaracter
+            | prBoolean
+;
+tipodedatogrup::= id prnumero
+                | id prCadena
+                | id prCaracter
+                | id prBoolean
+                | tipodedatogrup coma id prnumero
+                | tipodedatogrup coma id prCadena
+                | tipodedatogrup coma id prCaracter
+                | tipodedatogrup coma id prBoolean
+;
+
+declaracion::= prIngresar:A ident prcomo:C prnumero:D prConValor:E operaciones:F puntoYComa:G{:
+                for(int i=0;i<varsss.size();i++){
+                    codigoTraducido += "\t"+varsss.get(i) + "=" +F +"\n";
+                    segundo+= "ing"+(contadorDeclaraciones+1)+"[label=\""+A+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"ing"+contadorDeclaraciones+ "-> ing"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "idnt"+(contadorDeclaraciones+1)+"[label=\""+varsss.get(i)+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"idnt"+contadorDeclaraciones+ "-> idnt"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "pcomo"+(contadorDeclaraciones+1)+"[label=\""+C+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"pcomo"+contadorDeclaraciones+ "-> pcomo"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "prtp"+(contadorDeclaraciones+1)+"[label=\""+D+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"prtp"+contadorDeclaraciones +"-> prtp"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "prconv"+(contadorDeclaraciones+1)+"[label=\""+E+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"prconv"+contadorDeclaraciones+ "-> prconv"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "exp"+(contadorDeclaraciones+1)+"[label=\""+F+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"exp"+contadorDeclaraciones +"-> exp"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "pyc"+(contadorDeclaraciones+1)+"[label=\""+G+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"pyc"+contadorDeclaraciones +"-> pyc"+(contadorDeclaraciones+1)+";\n";
+                    contadorDeclaraciones +=1;
+                }
+                varsss.clear();
+            :}
+            | prIngresar:A ident prcomo:C prCadena:D prConValor:E cadena:b puntoYComa:G {: 
+                for(int i=0;i<varsss.size();i++){
+                    codigoTraducido += "\t"+varsss.get(i) + "=" +b +"\n";
+                    segundo+= "ing"+(contadorDeclaraciones+1)+"[label=\""+A+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"ing"+contadorDeclaraciones+ "-> ing"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "idnt"+(contadorDeclaraciones+1)+"[label=\""+varsss.get(i)+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"idnt"+contadorDeclaraciones+ "-> idnt"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "pcomo"+(contadorDeclaraciones+1)+"[label=\""+C+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"pcomo"+contadorDeclaraciones+ "-> pcomo"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "prtp"+(contadorDeclaraciones+1)+"[label=\""+D+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"prtp"+contadorDeclaraciones +"-> prtp"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "prconv"+(contadorDeclaraciones+1)+"[label=\""+E+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"prconv"+contadorDeclaraciones+ "-> prconv"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "exp"+(contadorDeclaraciones+1)+"[label="+b+", width = 2, group="+(contadorGroup+1)+ "]\n"+"exp"+contadorDeclaraciones +"-> exp"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "pyc"+(contadorDeclaraciones+1)+"[label=\""+G+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"pyc"+contadorDeclaraciones+ "-> pyc"+(contadorDeclaraciones+1)+";\n";
+                    contadorDeclaraciones +=1;
+                }
+                varsss.clear();
+            :} 
+            | prIngresar:A ident prcomo:C prCaracter:D prConValor:E caracter:c puntoYComa:G {:
+                for(int i=0;i<varsss.size();i++){
+                    codigoTraducido += "\t"+varsss.get(i) + "=" +c +"\n";
+                    segundo+= "ing"+(contadorDeclaraciones+1)+"[label=\""+A+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"ing"+contadorDeclaraciones+ "-> ing"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "idnt"+(contadorDeclaraciones+1)+"[label=\""+varsss.get(i)+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"idnt"+contadorDeclaraciones+ "-> idnt"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "pcomo"+(contadorDeclaraciones+1)+"[label=\""+C+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"pcomo"+contadorDeclaraciones+ "-> pcomo"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "prtp"+(contadorDeclaraciones+1)+"[label=\""+D+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"prtp"+contadorDeclaraciones+"-> prtp"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "prconv"+(contadorDeclaraciones+1)+"[label=\""+E+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"prconv"+contadorDeclaraciones+ "-> prconv"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "exp"+(contadorDeclaraciones+1)+"[label=\""+c+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"exp"+contadorDeclaraciones+ "-> exp"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "pyc"+(contadorDeclaraciones+1)+"[label=\""+G+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"pyc"+contadorDeclaraciones+ "-> pyc"+(contadorDeclaraciones+1)+";\n";
+                    contadorDeclaraciones +=1;
+                }
+                varsss.clear();
+            :}
+            | prIngresar:A ident prcomo:C prBoolean:D prConValor:E BoleanVerdadero:d puntoYComa:G{:
+                for(int i=0;i<varsss.size();i++){
+                    codigoTraducido += "\t"+varsss.get(i) + "=" +d +"\n";
+                    segundo+= "ing"+(contadorDeclaraciones+1)+"[label=\""+A+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"ing"+contadorDeclaraciones+ "-> ing"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "idnt"+(contadorDeclaraciones+1)+"[label=\""+varsss.get(i)+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"idnt"+contadorDeclaraciones+ "-> idnt"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "pcomo"+(contadorDeclaraciones+1)+"[label=\""+C+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"pcomo"+contadorDeclaraciones+ "-> pcomo"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "prtp"+(contadorDeclaraciones+1)+"[label=\""+D+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"prtp"+contadorDeclaraciones +"-> prtp"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "prconv"+(contadorDeclaraciones+1)+"[label=\""+E+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"prconv"+contadorDeclaraciones+ "-> prconv"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "exp"+(contadorDeclaraciones+1)+"[label=\""+d+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"exp"+contadorDeclaraciones+ "-> exp"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "pyc"+(contadorDeclaraciones+1)+"[label=\""+G+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"pyc"+contadorDeclaraciones+ "-> pyc"+(contadorDeclaraciones+1)+";\n";
+                    contadorDeclaraciones +=1;
+                }
+                varsss.clear();
+            :}
+            | prIngresar:A ident prcomo:C prBoolean:D prConValor:E BoleanFalso:e puntoYComa:G{:
+                for(int i=0;i<varsss.size();i++){
+                    codigoTraducido += "\t"+varsss.get(i) + "=" +e +"\n";
+                    segundo+= "ing"+(contadorDeclaraciones+1)+"[label=\""+A+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"ing"+contadorDeclaraciones+ "-> ing"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "idnt"+(contadorDeclaraciones+1)+"[label=\""+varsss.get(i)+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"idnt"+contadorDeclaraciones+ "-> idnt"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "pcomo"+(contadorDeclaraciones+1)+"[label=\""+C+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"pcomo"+contadorDeclaraciones+ "-> pcomo"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "prtp"+(contadorDeclaraciones+1)+"[label=\""+D+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"prtp"+contadorDeclaraciones+ "-> prtp"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "prconv"+(contadorDeclaraciones+1)+"[label=\""+E+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"prconv"+contadorDeclaraciones+ "-> prconv"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "exp"+(contadorDeclaraciones+1)+"[label=\""+e+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"exp"+contadorDeclaraciones+ "-> exp"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "pyc"+(contadorDeclaraciones+1)+"[label=\""+G+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"pyc"+contadorDeclaraciones+ "-> pyc"+(contadorDeclaraciones+1)+";\n";
+                    contadorDeclaraciones +=1;
+                }
+                varsss.clear();
+            :} 
+            | prIngresar:A ident prcomo:C prBoolean:D prConValor:E relacional:f puntoYComa:G{:
+                for(int i=0;i<varsss.size();i++){
+                    codigoTraducido += "\t"+varsss.get(i) + "=" +f +"\n";
+                    segundo+= "ing"+(contadorDeclaraciones+1)+"[label=\""+A+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"ing"+contadorDeclaraciones+ "-> ing"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "idnt"+(contadorDeclaraciones+1)+"[label=\""+varsss.get(i)+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"idnt"+contadorDeclaraciones+ "-> idnt"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "pcomo"+(contadorDeclaraciones+1)+"[label=\""+C+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"pcomo"+contadorDeclaraciones+ "-> pcomo"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "prtp"+(contadorDeclaraciones+1)+"[label=\""+D+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"prtp"+contadorDeclaraciones+ "-> prtp"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "prconv"+(contadorDeclaraciones+1)+"[label=\""+E+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"prconv"+contadorDeclaraciones+ "-> prconv"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "exp"+(contadorDeclaraciones+1)+"[label=\""+f+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"exp"+contadorDeclaraciones+ "-> exp"+(contadorDeclaraciones+1)+";\n";
+                    segundo+= "pyc"+(contadorDeclaraciones+1)+"[label=\""+G+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"pyc"+contadorDeclaraciones+ "-> pyc"+(contadorDeclaraciones+1)+";\n";
+                    contadorDeclaraciones +=1;
+                }
+                varsss.clear();
+                
+            :}
+;
+ident::= ident coma id:a {: varsss.add(a);:}
+        | id:b     {: varsss.add(b); :}
+;
+
+comentarios::= comenta:a {: a = a.replace("/", ""); codigoTraducido += "#"+a+"\n";:}
+            | comentarioMulti:b {:b = b.replace("/", ""); b= b.replace("*","");codigoTraducido += "\'\'\'"+b+"\'\'\'"+"\n";:}
+;
+asignaciones::= ident simAsignacion:B cadena:A puntoYComa:C{:
+                for(int i=0;i<varsss.size();i++){
+                    codigoTraducido += "\t"+varsss.get(i) + "=" +A +"\n";
+                    segundo+= "ids"+(contadorAsig+1)+"[label=\""+varsss.get(i)+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"ids"+contadorAsig+ "-> ids"+(contadorAsig+1)+";\n";
+                    segundo+= "simas"+(contadorAsig+1)+"[label=\""+B+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"simas"+contadorAsig+ "-> simas"+(contadorAsig+1)+";\n";
+                    segundo+= "exps"+(contadorAsig+1)+"[label="+A+", width = 2, group="+(contadorGroup+1)+ "]\n"+"exps"+contadorAsig+ "-> exps"+(contadorAsig+1)+";\n";
+                    segundo+= "pycs"+(contadorAsig+1)+"[label=\""+C+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"pycs"+contadorAsig+ "-> pycs"+(contadorAsig+1)+";\n";
+                    contadorAsig+=1;
+                }
+                varsss.clear();
+            :}
+            | ident simAsignacion:B operaciones:A puntoYComa:C{:
+                for(int i=0;i<varsss.size();i++){
+                    codigoTraducido += "\t"+varsss.get(i) + "=" +A +"\n";
+                    segundo+= "ids"+(contadorAsig+1)+"[label=\""+varsss.get(i)+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"ids"+contadorAsig+ "-> ids"+(contadorAsig+1)+";\n";
+                    segundo+= "simas"+(contadorAsig+1)+"[label=\""+B+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"simas"+contadorAsig+ "-> simas"+(contadorAsig+1)+";\n";
+                    segundo+= "exps"+(contadorAsig+1)+"[label=\""+A+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"exps"+contadorAsig+ "-> exps"+(contadorAsig+1)+";\n";
+                    segundo+= "pycs"+(contadorAsig+1)+"[label=\""+C+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"pycs"+contadorAsig+ "-> pycs"+(contadorAsig+1)+";\n";
+                    contadorAsig+=1;
+                }
+                varsss.clear();
+            :}
+            | ident simAsignacion:B relacional:A puntoYComa:C{:
+                for(int i=0;i<varsss.size();i++){
+                    codigoTraducido += "\t"+varsss.get(i) + "=" +A +"\n";
+                    segundo+= "ids"+(contadorAsig+1)+"[label=\""+varsss.get(i)+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"ids"+contadorAsig+ "-> ids"+(contadorAsig+1)+";\n";
+                    segundo+= "simas"+(contadorAsig+1)+"[label=\""+B+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"simas"+contadorAsig+ "-> simas"+(contadorAsig+1)+";\n";
+                    segundo+= "exps"+(contadorAsig+1)+"[label=\""+A+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"exps"+contadorAsig+ "-> exps"+(contadorAsig+1)+";\n";
+                    segundo+= "pycs"+(contadorAsig+1)+"[label=\""+C+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"pycs"+contadorAsig+ "-> pycs"+(contadorAsig+1)+";\n";
+                    contadorAsig+=1;
+
+                }
+                varsss.clear();
+            :}
+            | ident simAsignacion:B caracter:A puntoYComa:C{:
+                for(int i=0;i<varsss.size();i++){
+                    codigoTraducido += "\t"+varsss.get(i) + "=" +A +"\n";
+                    segundo+= "ids"+(contadorAsig+1)+"[label=\""+varsss.get(i)+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"ids"+contadorAsig+ "-> ids"+(contadorAsig+1)+";\n";
+                    segundo+= "simas"+(contadorAsig+1)+"[label=\""+B+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"simas"+contadorAsig+ "-> simas"+(contadorAsig+1)+";\n";
+                    segundo+= "exps"+(contadorAsig+1)+"[label=\""+A+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"exps"+contadorAsig+ "-> exps"+(contadorAsig+1)+";\n";
+                    segundo+= "pycs"+(contadorAsig+1)+"[label=\""+C+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"pycs"+contadorAsig+ "-> pycs"+(contadorAsig+1)+";\n";
+                    contadorAsig+=1;
+                }
+                varsss.clear();
+            :}
+            | ident simAsignacion:B BoleanVerdadero:A puntoYComa:C{:
+                for(int i=0;i<varsss.size();i++){
+                    codigoTraducido += "\t"+varsss.get(i) + "=" +A +"\n";
+                    segundo+= "ids"+(contadorAsig+1)+"[label=\""+varsss.get(i)+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"ids"+contadorAsig+ "-> ids"+(contadorAsig+1)+";\n";
+                    segundo+= "simas"+(contadorAsig+1)+"[label=\""+B+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"simas"+contadorAsig+ "-> simas"+(contadorAsig+1)+";\n";
+                    segundo+= "exps"+(contadorAsig+1)+"[label=\""+A+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"exps"+contadorAsig+ "-> exps"+(contadorAsig+1)+";\n";
+                    segundo+= "pycs"+(contadorAsig+1)+"[label=\""+C+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"pycs"+contadorAsig+ "-> pycs"+(contadorAsig+1)+";\n";
+                    contadorAsig+=1;
+                }
+                varsss.clear();
+            :}
+            | ident simAsignacion:B BoleanFalso:A puntoYComa:C{:
+                for(int i=0;i<varsss.size();i++){
+                    codigoTraducido += "\t"+varsss.get(i) + "=" +A +"\n";
+                    segundo+= "ids"+(contadorAsig+1)+"[label=\""+varsss.get(i)+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"ids"+contadorAsig+ "-> ids"+(contadorAsig+1)+";\n";
+                    segundo+= "simas"+(contadorAsig+1)+"[label=\""+B+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"simas"+contadorAsig+ "-> simas"+(contadorAsig+1)+";\n";
+                    segundo+= "exps"+(contadorAsig+1)+"[label=\""+A+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"exps"+contadorAsig+ "-> exps"+(contadorAsig+1)+";\n";
+                    segundo+= "pycs"+(contadorAsig+1)+"[label=\""+C+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"pycs"+contadorAsig+ "-> pycs"+(contadorAsig+1)+";\n";
+                    contadorAsig+=1;
+                }
+                varsss.clear();
+            :}
+;
+
+Imprimir::= primprimir:pro id:a puntoYComa:pycc {:codigoTraducido += "\tprint"+ "("+ a + ")" +"\n";
+        RESULT += "\tprint"+ "("+ a + ")" +"\n";
+        segundo+= "impN"+(contadorim+1)+"[label=\""+contadorGroup+pro+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"impN"+contadorim+ "-> impN"+(contadorim+1)+";\n";
+        segundo+= "varia"+(contadorvar+1)+"[label=\""+contadorGroup+a+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"varia"+contadorvar+ "-> varia"+(contadorvar+1)+";\n";
+        segundo+= "puncoma"+(contadorGroup+1)+"[label=\""+contadorGroup+pycc+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"puncoma"+contadorGroup+ "-> puncoma"+(contadorGroup+1)+";\n";
+        contadorGroup +=1;
+        contadorim +=1;
+        contadorvar +=1;
+        :}
+        | primprimirln:prl1 id:b puntoYComa:pyc2 {:codigoTraducido += "\tprint"+ "("+ b + ")" +"\n";
+        RESULT += "\tprint"+ "("+ b + ")" +"\n";
+        segundo+= "impLn"+(contadorimL+1)+"[label=\""+contadorGroup+prl1+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"impLn"+contadorimL+ "-> impLn"+(contadorimL+1)+";\n";
+        segundo+= "varia"+(contadorvar+1)+"[label=\""+contadorGroup+b+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"varia"+contadorvar+ "-> varia"+(contadorvar+1)+";\n";
+        segundo+= "puncoma"+(contadorGroup+1)+"[label=\""+contadorGroup+pyc2+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"puncoma"+contadorGroup+ "-> puncoma"+(contadorGroup+1)+";\n";
+        contadorGroup +=1;
+        contadorvar +=1;
+        contadorimL+=1;
+        :}
+        | primprimir:prl2 cadena:c puntoYComa:pyc3 {: codigoTraducido += "\tprint"+ "("+ c + ")" +"\n";
+        RESULT += "\tprint"+ "("+ c + ")" +"\n"; 
+        segundo+= "impN"+(contadorim+1)+"[label=\""+contadorGroup+prl2+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"impN"+contadorim+ "-> impN"+(contadorim+1)+";\n";
+        segundo+= "caden"+(contadorCan+1)+"[label="+c+", width = 2, group="+(contadorGroup+1)+ "]\n"+"caden"+contadorCan+ "-> caden"+(contadorCan+1)+";\n";
+        segundo+= "puncoma"+(contadorGroup+1)+"[label=\""+contadorGroup+pyc3+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"puncoma"+contadorGroup+ "-> puncoma"+(contadorGroup+1)+";\n";
+        contadorGroup +=1;
+        contadorim +=1; 
+        contadorCan +=1;
+        :}
+        | primprimirln:prln3 cadena:d puntoYComa:pyc3 {: codigoTraducido += "\tprint"+ "("+ d + ")" +"\n";
+        RESULT += "\tprint"+ "("+ d + ")" +"\n";
+        segundo+= "impLn"+(contadorimL+1)+"[label=\""+contadorGroup+prln3+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"impLn"+contadorimL+ "-> impLn"+(contadorimL+1)+";\n";
+        segundo+= "caden"+(contadorCan+1)+"[label="+d+", width = 2, group="+(contadorGroup+1)+ "]\n"+"caden"+contadorCan+ "-> caden"+(contadorCan+1)+";\n";
+        segundo+= "puncoma"+(contadorGroup+1)+"[label=\""+contadorGroup+pyc3+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"puncoma"+contadorGroup+ "-> puncoma"+(contadorGroup+1)+";\n";
+        contadorGroup +=1;
+        contadorimL +=1;
+        contadorCan +=1;
+        :}
+        | primprimir:prln4 pare1:par1 id:e pare2:par2 puntoYComa:pyc4 {:  codigoTraducido += "\tprint"+ "("+ e + ")" +"\n";
+        RESULT += "\tprint"+ "("+ e + ")" +"\n";
+        segundo+= "impN"+(contadorim+1)+"[label=\""+contadorGroup+prln4+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"impN"+contadorim+ "-> impN"+(contadorim+1)+";\n";
+        segundo+= "parIz"+(contadorpar+1)+"[label=\""+contadorGroup+par1+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"parIz"+contadorpar+ "-> parIz"+(contadorpar+1)+";\n";
+        segundo+= "varia"+(contadorvar+1)+"[label=\""+contadorGroup+e+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"varia"+contadorvar+ "-> varia"+(contadorvar+1)+";\n";
+        segundo+= "parDe"+(contadorder+1)+"[label=\""+contadorGroup+par2+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"parDe"+contadorder+ "-> parDe"+(contadorder+1)+";\n";
+        segundo+= "puncoma"+(contadorGroup+1)+"[label=\""+contadorGroup+pyc4+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"puncoma"+contadorGroup+ "-> puncoma"+(contadorGroup+1)+";\n";
+        contadorGroup +=1;
+        contadorim +=1; 
+        contadorvar +=1;
+        contadorpar +=1;
+        contadorder +=1;
+        :}
+        | primprimirln:prln5 pare1:par3 id:f pare2:par4 puntoYComa:pyc5 {:  codigoTraducido += "\tprint"+ "("+ f + ")" +"\n";
+        RESULT += "\tprint"+ "("+ f + ")" +"\n";
+        segundo+= "impLn"+(contadorimL+1)+"[label=\""+contadorGroup+prln5+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"impLn"+contadorimL+ "-> impLn"+(contadorimL+1)+";\n";
+        segundo+= "parIz"+(contadorpar+1)+"[label=\""+contadorGroup+par3+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"parIz"+contadorpar+ "-> parIz"+(contadorpar+1)+";\n";
+        segundo+= "varia"+(contadorvar+1)+"[label=\""+contadorGroup+f+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"varia"+contadorvar+ "-> varia"+(contadorvar+1)+";\n";
+        segundo+= "parDe"+(contadorder+1)+"[label=\""+contadorGroup+par4+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"parDe"+contadorder+ "-> parDe"+(contadorder+1)+";\n";
+        segundo+= "puncoma"+(contadorGroup+1)+"[label=\""+contadorGroup+pyc5+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"puncoma"+contadorGroup+ "-> puncoma"+(contadorGroup+1)+";\n";
+        contadorGroup +=1;
+        contadorvar +=1;
+        contadorimL +=1;
+        contadorpar +=1;
+        contadorder +=1;
+        :}
+        | primprimir:prln6 pare1:par5 cadena:g pare2:par6 puntoYComa:pyc6 {: codigoTraducido += "\tprint"+ "("+ g + ")" +"\n";
+        RESULT += "\tprint"+ "("+ g + ")" +"\n";
+        segundo+= "impN"+(contadorim+1)+"[label=\""+contadorGroup+prln6+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"impN"+contadorim+ "-> impN"+(contadorim+1)+";\n";
+        segundo+= "parIz"+(contadorpar+1)+"[label=\""+contadorGroup+par5+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"parIz"+contadorpar+ "-> parIz"+(contadorpar+1)+";\n";
+        segundo+= "caden"+(contadorCan+1)+"[label="+g+", width = 2, group="+(contadorGroup+1)+ "]\n"+"caden"+contadorCan+ "-> caden"+(contadorCan+1)+";\n";
+        segundo+= "parDe"+(contadorder+1)+"[label=\""+contadorGroup+par6+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"parDe"+contadorder+ "-> parDe"+(contadorder+1)+";\n";
+        segundo+= "puncoma"+(contadorGroup+1)+"[label=\""+contadorGroup+pyc6+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"puncoma"+contadorGroup+ "-> puncoma"+(contadorGroup+1)+";\n";
+        contadorGroup +=1;
+        contadorim +=1; 
+        contadorCan +=1;
+        contadorpar +=1;
+        contadorder +=1;
+        :}
+        | primprimirln:prln7 pare1:par7 cadena:h pare2:par8 puntoYComa:pyc7 {: codigoTraducido += "\tprint"+ "("+ h + ")" +"\n";
+        RESULT += "\tprint"+ "("+ h + ")" +"\n";
+        segundo+= "impLn"+(contadorimL+1)+"[label=\""+contadorGroup+prln7+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"impLn"+contadorimL+ "-> impLn"+(contadorimL+1)+";\n";
+        segundo+= "parIz"+(contadorpar+1)+"[label=\""+contadorGroup+par7+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"parIz"+contadorpar+ "-> parIz"+(contadorpar+1)+";\n";
+        segundo+= "caden"+(contadorCan+1)+"[label="+h+", width = 2, group="+(contadorGroup+1)+ "]\n"+"caden"+contadorCan+ "-> caden"+(contadorCan+1)+";\n";
+        segundo+= "parDe"+(contadorder+1)+"[label=\""+contadorGroup+par8+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"parDe"+contadorder+ "-> parDe"+(contadorder+1)+";\n";
+        segundo+= "puncoma"+(contadorGroup+1)+"[label=\""+contadorGroup+pyc7+"\", width = 2, group="+(contadorGroup+1)+ "]\n"+"puncoma"+contadorGroup+ "-> puncoma"+(contadorGroup+1)+";\n";
+        contadorGroup +=1;
+        contadorimL +=1;
+        contadorCan +=1;
+        contadorpar +=1;
+        contadorder +=1;
+        :}
+;
+
+
+operaciones::= operaciones:S trest operaciones:R {:RESULT = S + "-" +R;:}
+            | operaciones:S tsum operaciones:R {:RESULT = S + "+" +R;:}
+            | operaciones:S tdiv operaciones:R {:RESULT = S + "/" +R;:}
+            | operaciones:S tmul operaciones:R {:RESULT = S + "*" +R;:}
+            | operaciones:S tpot operaciones:R {:RESULT = S + "**" +R;:}
+            | operaciones:S tmod operaciones:R {:RESULT = S + "%" +R;:}
+            | pare1 operaciones:S pare2 {:RESULT ="("+S+")";:}
+            | cor1 operaciones:S cor2 {:RESULT = "[" + S +"]";:}
+            | pare1 relacional:S pare2 {:RESULT = "(" + S +")";:}
+            | digito:a {:RESULT = a;:}
+            | id:b {:RESULT = b;:}
+;
+
+relacional::= operaciones:S tmayor operaciones:R {:RESULT = S + ">" +R;:}
+        | operaciones:S tmenor operaciones:R  {:RESULT = S + "<" +R;:}
+        | operaciones:S tmayorigual operaciones:R {:RESULT = S + ">=" +R;:}
+        | operaciones:S tmenorigual operaciones:R {:RESULT = S + "<=" +R;:}
+        | operaciones:S tigual operaciones:R  {:RESULT = S + "==" +R;:}
+        | operaciones:S tdiferente operaciones:R {:RESULT = S + "!=" +R;:}
+;
+
+logico::=  prnot operaciones:A {:RESULT = "not" + A;:}
+        | operaciones:A pror operaciones:B {:RESULT =A+ "or" + B;:}
+        | operaciones:A prand operaciones:B {:RESULT = A+"and" + B;:}
+;
+
+Clmientras::= prmientras logico prhacer E prfinmientras
+        | prmientras logico prhacer prfinmientras
+;
+
+OsiRep::= prosi relacional prentonces E 
+        | OsiRep prosi relacional prentonces E
+;
+
+If::= prsi relacional:A  prentonces E:B prfinsi {:
+        codigoTraducido += "if" + "(" + A +"):"+"\n"+B;
+    :}
+    | prsi relacional prentonces E prdelocontrario E prfinsi
+    | prsi relacional prentonces E OsiRep prdelocontrario E prfinsi
+    | prsi id prentonces E prdelocontrario E prfinsi
+    | prsi id prentonces E OsiRep prdelocontrario E prfinsi
+;
+
+clpara::= prpara id simAsignacion operaciones prhasta operaciones prhacer E prfinpara
+        | prpara id simAsignacion operaciones prhasta operaciones prhacer prfinpara
+        | prpara id simAsignacion operaciones prhasta operaciones prcon princremental operaciones prhacer E prfinpara
+;
+
+multuple::= prsegun id prhacer multipleRep prdelocontrario prentonces E prfinsegun
+            | prsegun id prhacer multipleRep prfinsegun
+;
+
+multipleRep::= prinzq digito prinder prentonces E  
+            | multipleRep prinzq digito prinder prentonces E
+;
+rep::= prrepetir E prhastaque operaciones
+    | prrepetir E prhastaque logico
+    | prrepetir E prhastaque relacional
+    | prrepetir prhastaque operaciones
+    | prrepetir prhastaque logico
+    | prrepetir prhastaque relacional
+;
+
+retur::= prretornar operaciones puntoYComa
+        | prretornar relacional puntoYComa
+        | prretornar logico puntoYComa
+;
+
+metodo::= prmetodo id E prfinmetodo
+        | prmetodo id prconparametros pare1 tipodedatogrup pare2 E prfinmetodo
+;
+
+function::= prfuncion id tipodato E prfinfuncion
+        | prfuncion id tipodato prconparametros pare1 tipodedatogrup pare2 E prfinfuncion
+;
+
+ejecutar::= prejecutar id pare1 pare2 puntoYComa
+        | prejecutar id pare1 tipodedatogrup pare2 puntoYComa
+;
+
+

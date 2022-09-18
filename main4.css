@@ -1,0 +1,60 @@
+body{
+    background-color: #eee;
+}
+
+ul{
+    list-style-type: none;
+    margin-top: 0;
+    padding: 0;
+    overflow: hidden;
+    position: fixed;
+    top:0;
+    width: 100%;
+    left: 0;
+    background-color: #333;
+    color: #eee;
+    margin-bottom: 300px;
+}
+
+li{
+    text-align: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+div{
+    margin-top: 100px;
+}
+
+.Titulo{
+    font-size: 25px;
+    margin-top: 8px;
+}
+.subtitulo{
+    margin-top: 8px;
+    font-size: 20px;
+    margin-bottom: 8px;
+}
+
+table{
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: white;
+    border-collapse: collapse;
+    width: 50%;
+    margin-bottom: 30px;
+    font-size: 15px;
+}
+
+td{
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+table td{
+    text-align: center;
+}
+
+.precio{
+    margin-top: 30px;
+    background-color: #333;
+    color: #eee;
+}
